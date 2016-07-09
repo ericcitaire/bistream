@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public interface BiStream<T, C1, C2> {
@@ -12,11 +13,11 @@ public interface BiStream<T, C1, C2> {
 
     BiStream<T, C1, C2> filter(BiPredicate<? super C1, ? super C2> filter);
 
+    <R> Stream<R> mapToObj(BiFunction<? super C1, ? super C2, ? extends R> mapper);
+
     static <T, C1, C2> BiStream<T, C1, C2> of(Function<T, C1> comp1, Function<T, C2> comp2, T... items) {
         return new BiStreamImpl<>(comp1, comp2, Stream.of(items));
     }
-
-    <R> Stream<R> mapToObj(BiFunction<? super C1, ? super C2, ? extends R> mapper);
 
     class BiStreamImpl<T, C1, C2> implements BiStream<T, C1, C2> {
         private Stream<T> stream;
@@ -36,7 +37,7 @@ public interface BiStream<T, C1, C2> {
 
         @Override
         public BiStream<T, C1, C2> filter(BiPredicate<? super C1, ? super C2> filter) {
-            this.stream = stream().filter(item -> filter.test(comp1.apply(item), comp2.apply(item)));
+            this.stream = stream.filter(item -> filter.test(comp1.apply(item), comp2.apply(item)));
             return this;
         }
 
